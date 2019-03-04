@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <html>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 <body>
-<%= @text %>
+  <div class="container mt-4 mb-5">
+    <h1>スクレイピング結果</h1>
+    <% @info.each do |company_id, elms| %>
+      <p>company_id : <%= company_id %></p>
+      <table class="table">
+        <% elms.each do |elm| %>
+          <tr>
+            <th><%= elm[0] %></th>
+            <td><%= elm[1] %></td>
+          </tr>
+        <% end %>
+      </table>
+    <% end %>
+  </div>
 </body>
 </html>
