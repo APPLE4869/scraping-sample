@@ -14,7 +14,7 @@ class Vorkers
   def fetch_corporate_info
     fetch_info = {}
     fetch_company_id_list.each do |company_id|
-      fetch_info[company_id] = fetch_company_analysis_info(company_id)
+      fetch_info[company_id] = fetch_company_analysis_info(company_id) + fetch_company_ranking_endpoint(company_id)
     end
     fetch_info
   end
@@ -73,6 +73,20 @@ class Vorkers
     info
   end
 
+  def fetch_company_ranking_endpoint(company_id)
+    response = Faraday.get(company_ranking_endpoint(company_id))
+    ranking_doc = nokogiri_doc_by_html(response.body)
+
+    ranks = []
+    ranking_doc.css('#tab1').xpath('.//article[contains(@class, "article")]').each do |node|
+      ranks << [
+        node.at_xpath('.//span[@class="colonListTerm fw-n"]').text,
+        node.at_xpath('.//span[@class="rankingBar_balloon-inner"]').text
+      ]
+    end
+    ranks
+  end
+
   def nokogiri_doc_by_html(html)
     raise ArgumentError unless html.kind_of?(String)
     Nokogiri::HTML.parse(html, nil, "utf-8")
@@ -84,5 +98,9 @@ class Vorkers
 
   def company_analysis_endpoint(company_id)
     URI.escape("#{BASE_URL}/#{company_id}/analysis/")
+  end
+
+  def company_ranking_endpoint(company_id)
+    URI.escape("#{BASE_URL}/#{company_id}/ranking/")
   end
 end
