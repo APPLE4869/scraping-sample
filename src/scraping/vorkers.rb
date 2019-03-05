@@ -38,6 +38,8 @@ class Vorkers
     return @company_id_list if @company_id_list
 
     response = Faraday.get(company_list_endpoint)
+    p response.status
+    p response.body
     list_doc = nokogiri_doc_by_html(response.body)
 
     @company_id_list = []
@@ -93,8 +95,6 @@ class Vorkers
   end
 
   def company_list_endpoint
-    p URI.escape("#{BASE_URL}/company_list?field=&pref=&src_str=#{@company_name}&sort=1&ct=comlist")
-    p "--------------"
     URI.escape("#{BASE_URL}/company_list?field=&pref=&src_str=#{@company_name}&sort=1&ct=comlist")
   end
 
