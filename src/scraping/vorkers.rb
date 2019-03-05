@@ -3,6 +3,7 @@ require 'faraday'
 require 'nokogiri'
 
 class Vorkers
+  UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.119 Safari/537.36"
   BASE_URL = "https://www.vorkers.com"
 
   def initialize(company_name)
@@ -14,7 +15,7 @@ class Vorkers
   def fetch_corporate_info
     fetch_info = {}
     fetch_company_id_list.each do |company_id|
-      fetch_info[company_id] = fetch_company_analysis_info(company_id) + fetch_company_ranking_endpoint(company_id)
+      fetch_info[company_id] = fetch_company_analysis_info(company_id) + fetch_company_ranking(company_id)
     end
     fetch_info
   end
@@ -37,7 +38,7 @@ class Vorkers
   def fetch_company_id_list
     return @company_id_list if @company_id_list
 
-    response = connection.get(company_list_endpoint)
+    response = connection.get(company_list_path, headers: { user_agent: UA })
     p response.status
     p response.headers
     p response.body
@@ -54,7 +55,7 @@ class Vorkers
   end
 
   def fetch_company_analysis_info(company_id)
-    response = connection.get(company_analysis_endpoint(company_id))
+    response = connection.get(company_analysis_path(company_id), headers: { user_agent: UA })
     analysis_doc = nokogiri_doc_by_html(response.body)
 
     dt_elms = []
@@ -76,8 +77,8 @@ class Vorkers
     info
   end
 
-  def fetch_company_ranking_endpoint(company_id)
-    response = Faraday.get(company_ranking_endpoint(company_id))
+  def fetch_company_ranking(company_id)
+    response = connection.get(company_ranking_path(company_id))
     ranking_doc = nokogiri_doc_by_html(response.body)
 
     ranks = []
@@ -96,18 +97,18 @@ class Vorkers
   end
 
   def connection
-    Faraday.new(options = { headers: {user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.119 Safari/537.36" }})
+    Faraday.new(BASE_URL)
   end
 
-  def company_list_endpoint
-    URI.escape("#{BASE_URL}/company_list?field=&pref=&src_str=#{@company_name}&sort=1&ct=comlist")
+  def company_list_path
+    URI.escape("/company_list?field=&pref=&src_str=#{@company_name}&sort=1&ct=comlist")
   end
 
-  def company_analysis_endpoint(company_id)
-    URI.escape("#{BASE_URL}/#{company_id}/analysis/")
+  def company_analysis_path(company_id)
+    URI.escape("/#{company_id}/analysis/")
   end
 
-  def company_ranking_endpoint(company_id)
-    URI.escape("#{BASE_URL}/#{company_id}/ranking/")
+  def company_ranking_path(company_id)
+    URI.escape("/#{company_id}/ranking/")
   end
 end
