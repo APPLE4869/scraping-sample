@@ -39,6 +39,7 @@ class Vorkers
 
     response = Faraday.get(company_list_endpoint)
     p response.status
+    p response.headers
     p response.body
     list_doc = nokogiri_doc_by_html(response.body)
 
