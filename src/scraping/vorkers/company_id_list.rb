@@ -23,7 +23,7 @@ module Vorkers
     private
 
     def scraping_client
-      @scraping_client ||= Scraping.new(BASE_URL)
+      @scraping_client ||= Scraping.new(BASE_URL, Auth.new)
     end
 
     def company_list_path
