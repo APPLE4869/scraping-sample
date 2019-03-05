@@ -9,7 +9,8 @@ class Scraping
   URL_REGEXP = /\A#{URI::regexp(%w(http https))}\z/
 
   def initialize(base_url, auth)
-    raise ArgumentError unless base_url =~ URL_REGEXP
+    # TODO : Authのところは別のAuthクラスを定義して、それを継承することで型を担保するように改修する。
+    raise ArgumentError unless base_url =~ URL_REGEXP && [Vorkers::Auth].include?(auth.class)
     @base_url = base_url
     @auth = auth
   end

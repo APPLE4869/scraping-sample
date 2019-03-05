@@ -28,6 +28,7 @@ module Vorkers
       )
       @authed_cookie = cookie_for_login.create_new_cookie_by_response(login_action_response)
 
+      # 以後、ログイン済みのユーザーとしてアクセスする際は、ここでキャッシュしたCookieを利用する。
       redis_client.set(AUTHED_COOKIE_CACHE_KEY, @authed_cookie.value)
       redis_client.expire(AUTHED_COOKIE_CACHE_KEY, AUTHED_COOKIE_TTL)
     end

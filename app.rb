@@ -3,6 +3,9 @@ require 'sinatra'
 
 Dir.glob('./src/**/*.rb').each { |file| require file }
 
+# TODO
+# 1. 企業情報や口コミでページネーションが考慮されていないので、それを考慮するように改修する。
+# 2. 求人情報で同じページ内にある他社の求人も最後に取得しようとしてしまっているので、対象の会社のもののみを収集するように改修する。
 get '/company/:company_name' do
   email = ENV['VORKERS_EMAIL']
   password = ENV['VORKERS_PASSWORD']
