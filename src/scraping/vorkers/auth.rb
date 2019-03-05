@@ -2,7 +2,7 @@
 # 別サイトでも認証用のクラスはAuthと命名し、publicメソッドのInterfaceは揃えること。
 module Vorkers
   class Auth
-    AUTHED_COOKIE_TTL = 600 # 1分
+    AUTHED_COOKIE_TTL = 600 # 10分
     AUTHED_COOKIE_CACHE_KEY = "AUTHED_COOKIE_CACHE_KEY"
 
     def initialize
