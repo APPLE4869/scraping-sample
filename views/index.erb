@@ -30,10 +30,10 @@
       <h3 class="mt-5 mb-2">求人情報</h3>
       <p>掲載求人数 : <%= company_info[:recruit].count %>件</p>
       <div class="overflow-auto" style="max-height: 1000px">
-        <% company_info[:recruit].each_with_index do |recruit, i| %>
-          <h4>求人 <%= i + 1 %></h4>
+        <% company_info[:recruit].each do |recruit_id, recruit_elms| %>
+          <h4>求人 : <a href="<%= "https://www.vorkers.com/#{company_id}/recruit_jam?j=#{recruit_id}" %>" target="_blank"><%= recruit_id %></a></h4>
           <table class="table table-striped mb-5">
-            <% recruit.each do |elm| %>
+            <% recruit_elms.each do |elm| %>
               <tr>
                 <th><%= elm[0] %></th>
                 <td><%= elm[1]&.gsub(/\r\n|\r|\n/, "<br />") %></td>

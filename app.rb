@@ -4,6 +4,8 @@ require 'sinatra'
 Dir.glob('./src/**/*.rb').each { |file| require file }
 
 get '/company/:company_name' do
+  cache_control :public, max_age: 3600
+
   company_id_list_client = Vorkers::CompanyIdList.new(params[:company_name])
   company_ids = company_id_list_client.fetch
 

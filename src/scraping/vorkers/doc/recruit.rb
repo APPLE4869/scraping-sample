@@ -7,11 +7,11 @@ module Vorkers
       end
 
       def collect
-        collection = []
+        collection = {}
         recruit_ids = fetch_recruit_ids
 
         recruit_ids.each do |recruit_id|
-          collection << fetch_recruit_detail_info(recruit_id)
+          collection[recruit_id] = fetch_recruit_detail_info(recruit_id)
         end
 
         collection
@@ -48,7 +48,6 @@ module Vorkers
 
         data = []
         top_node = doc.css('#mainColumn')
-        data << ["id", recruit_id]
         data << ["タイトル", top_node.at_xpath('.//h3[contains(@class, "testPreviewJobOfferTitle")]')&.text]
 
         dt_texts = []

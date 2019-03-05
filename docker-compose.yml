@@ -1,0 +1,15 @@
+version: '2'
+services:
+  sinatra_redis:
+    image: redis:4.0.9
+    volumes_from:
+      - datastore
+    ports:
+      - "6379:6379"
+  datastore:
+    image: busybox
+    volumes:
+      - redis-data:/data
+volumes:
+  redis-data:
+    driver: local
