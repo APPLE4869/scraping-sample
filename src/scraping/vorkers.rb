@@ -37,7 +37,7 @@ class Vorkers
   def fetch_company_id_list
     return @company_id_list if @company_id_list
 
-    response = Faraday.get(company_list_endpoint)
+    response = connection.get(company_list_endpoint)
     p response.status
     p response.headers
     p response.body
@@ -54,7 +54,7 @@ class Vorkers
   end
 
   def fetch_company_analysis_info(company_id)
-    response = Faraday.get(company_analysis_endpoint(company_id))
+    response = connection.get(company_analysis_endpoint(company_id))
     analysis_doc = nokogiri_doc_by_html(response.body)
 
     dt_elms = []
@@ -93,6 +93,10 @@ class Vorkers
   def nokogiri_doc_by_html(html)
     raise ArgumentError unless html.kind_of?(String)
     Nokogiri::HTML.parse(html, nil, "utf-8")
+  end
+
+  def connection
+    Faraday.new(options = { headers: {user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.119 Safari/537.36" }})
   end
 
   def company_list_endpoint
