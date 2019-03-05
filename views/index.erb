@@ -42,6 +42,21 @@
           </table>
         <% end %>
       </div>
+
+      <h3 class="mt-5 mb-2">口コミ</h3>
+      <% company_info[:review].each do |review_type_num, collection| %>
+        <h4><%= collection[:name] %></h4>
+        <% collection[:info].each do |review_elm| %>
+          <table class="table table-striped mb-5">
+            <% review_elm.each do |elm| %>
+              <tr>
+                <th><%= elm[0] %></th>
+                <td><%= elm[1]&.gsub(/\r\n|\r|\n/, "<br />") %></td>
+              </tr>
+            <% end %>
+          </table>
+        <% end %>
+      <% end %>
       <hr>
     <% end %>
   </div>
