@@ -93,6 +93,8 @@ class Vorkers
   end
 
   def company_list_endpoint
+    p @company_name
+    p "--------------"
     URI.escape("#{BASE_URL}/company_list?field=&pref=&src_str=#{@company_name}&sort=1&ct=comlist")
   end
 
