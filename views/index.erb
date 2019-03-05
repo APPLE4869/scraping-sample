@@ -4,16 +4,45 @@
 <body>
   <div class="container mt-4 mb-5">
     <h1>スクレイピング結果</h1>
-    <% @info.each do |company_id, elms| %>
-      <h2>company_id : <%= company_id %></h2>
-      <table class="table">
-        <% elms.each do |elm| %>
+    <p>ヒットした企業数 : <%= @company_info_list.count %>件</p>
+    <% @company_info_list.each do |company_id, company_info| %>
+      <h2>企業ID : <a href="https://www.vorkers.com/company.php?m_id=<%= company_id %>" target="_blank"><%= company_id %></a></h2>
+      <h3 class="mt-5 mb-2">企業概要</h3>
+      <table class="table table-striped">
+        <% company_info[:analysis].each do |elm| %>
           <tr>
             <th><%= elm[0] %></th>
             <td><%= elm[1] %></td>
           </tr>
         <% end %>
       </table>
+
+      <h3 class="mt-5 mb-2">企業ランキング</h3>
+      <table class="table table-striped">
+        <% company_info[:ranking].each do |elm| %>
+          <tr>
+            <th><%= elm[0] %></th>
+            <td><%= elm[1] %></td>
+          </tr>
+        <% end %>
+      </table>
+
+      <h3 class="mt-5 mb-2">求人情報</h3>
+      <p>掲載求人数 : <%= company_info[:recruit].count %>件</p>
+      <div class="overflow-auto" style="max-height: 1000px">
+        <% company_info[:recruit].each_with_index do |recruit, i| %>
+          <h4>求人 <%= i + 1 %></h4>
+          <table class="table table-striped mb-5">
+            <% recruit.each do |elm| %>
+              <tr>
+                <th><%= elm[0] %></th>
+                <td><%= elm[1]&.gsub(/\r\n|\r|\n/, "<br />") %></td>
+              </tr>
+            <% end %>
+          </table>
+        <% end %>
+      </div>
+      <hr>
     <% end %>
   </div>
 </body>
