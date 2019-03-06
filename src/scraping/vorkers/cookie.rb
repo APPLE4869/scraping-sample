@@ -53,7 +53,13 @@ module Vorkers
     end
 
     def gen_cookie_string(v_clid:, phpsessionid:, hashed_user_id:, awsalb:)
-      "v_clid=#{v_clid}; PHPSESSID=#{phpsessionid}; hashed_user_id=#{hashed_user_id}; AWSALB=#{awsalb};"
+      cookie = ""
+      cookie += "v_clid=#{v_clid};" if v_clid
+      cookie += "PHPSESSID=#{phpsessionid};" if phpsessionid
+      cookie += "hashed_user_id=#{hashed_user_id};" if hashed_user_id
+      cookie += "AWSALB=#{awsalb};" if awsalb
+      cookie.gsub!(/(;).+/, "; ")
+      cookie
     end
   end
 end

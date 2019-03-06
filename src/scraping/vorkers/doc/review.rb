@@ -34,6 +34,31 @@ module Vorkers
       def fetch_reviews_info(review_type_num)
         doc = scraping_client.fetch_doc(review_list_path(review_type_num))
 
+        if doc.css('#mainContents').count == 1
+          pattern1_info(doc)
+        elsif doc.css('#mainColumn').count == 1
+          pattern2_info(doc)
+        else
+          raise
+        end
+      end
+
+      def pattern1_info(doc)
+        review_list = []
+        doc.css('#mainContents').xpath('.//article[contains(@class, "article-wide")]').each do |node|
+          review_data = []
+
+          review_data << ["回答者", node.at_xpath('.//div[contains(@class, "article_user")]')&.css("h3")&.css("a")&.text]
+          review_data << ["星の数", node.at_xpath('.//div[contains(@class, "article_user")]')&.at_xpath('.//span[@class="text-score"]')&.text]
+          review_data << ["本文", node&.at_xpath('.//div[contains(@class, "article_review")]')&.text]
+          review_data << ["回答日", node&.at_xpath('.//dl[@class="answerDate"]')&.at_xpath('.//dd')&.text]
+
+          review_list << review_data
+        end
+        review_list
+      end
+
+      def pattern2_info(doc)
         review_list = []
         doc.css('#mainColumn').xpath('.//article[contains(@class, "article")]').each do |node|
           review_data = []

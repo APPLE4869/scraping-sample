@@ -12,7 +12,7 @@ module Vorkers
         ranks = []
         doc.css('#tab1').xpath('.//article[contains(@class, "article")]').each do |node|
           ranks << [
-            node.at_xpath('.//span[@class="colonListTerm fw-n"]')&.text,
+            node.at_xpath('.//span[contains(@class, "colonListTerm")]')&.text,
             node.at_xpath('.//span[@class="rankingBar_balloon-inner"]')&.text
           ]
         end

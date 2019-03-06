@@ -5,7 +5,7 @@ require 'nokogiri'
 require 'redis'
 
 class Scraping
-  CACHE_TTL = 3600 # キャッシュ時間を1時間に設定
+  CACHE_TTL = 60 * 60 * 8 # キャッシュ時間を8時間に設定
   URL_REGEXP = /\A#{URI::regexp(%w(http https))}\z/
 
   def initialize(base_url, auth)
@@ -24,9 +24,9 @@ class Scraping
 
     if html == nil
       # スクレイピングによる連続アクセスでのサーバー負荷を懸念して、通信ごとにSleepTimeを設けている。
-      p "Sleeping..."
-      sleep(rand(2..4))
-      p "Wake Up!"
+      sleep_time = rand(2..4)
+      p "sleep time : #{sleep_time} s"
+      sleep(sleep_time)
       response = get_request(path)
       html = response.body
 

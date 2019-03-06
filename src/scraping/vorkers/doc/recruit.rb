@@ -8,10 +8,10 @@ module Vorkers
 
       def collect
         collection = {}
-        recruit_ids = fetch_recruit_ids
+        detail_url_suffixes = fetch_detail_url_suffixes
 
-        recruit_ids.each do |recruit_id|
-          collection[recruit_id] = fetch_recruit_detail_info(recruit_id)
+        detail_url_suffixes.each do |detail_url_suffix|
+          collection[detail_url_suffix] = fetch_recruit_detail_info(detail_url_suffix)
         end
 
         collection
@@ -27,25 +27,80 @@ module Vorkers
         URI.escape("/#{@company_id}/job/")
       end
 
-      def recruit_detail_path(recruit_id)
-        URI.escape("/#{@company_id}/recruit_jam?j=#{recruit_id}")
+      def recruit_detail_path(detail_url_suffix)
+        URI.escape("/#{@company_id}/#{detail_url_suffix}")
       end
 
-      def fetch_recruit_ids
+      def fetch_detail_url_suffixes
         doc = scraping_client.fetch_doc(recruit_list_path)
 
-        recruit_id_list = []
-        doc.css('#mainColumn').xpath('.//article[contains(@class, "break-word")]').each do |node|
-          href = node.at_xpath('.//a[contains(@class, "button-usuallyBlue")]').attribute('href').value
-          m = href.match(/.+?j=([A-Za-z0-9]+)/)
-          recruit_id_list << m[1]
+        if doc.css('#mainContents').count == 1
+          pattern1_detail_url_suffix_info(doc)
+        elsif doc.css('#mainColumn').count == 1
+          pattern2_detail_url_suffix_info(doc)
+        else
+          raise
         end
-        recruit_id_list
       end
 
-      def fetch_recruit_detail_info(recruit_id)
-        doc = scraping_client.fetch_doc(recruit_detail_path(recruit_id))
+      def fetch_recruit_detail_info(detail_url_suffix)
+        doc = scraping_client.fetch_doc(recruit_detail_path(detail_url_suffix))
 
+        if doc.css('#mainContents').count == 1
+          pattern1_detail_info(doc)
+        elsif doc.css('#mainColumn').count == 1
+          pattern2_detail_info(doc)
+        else
+          raise
+        end
+      end
+
+      def pattern1_detail_url_suffix_info(doc)
+        recruit_detail_url_suffix_list = []
+        doc.css('#mainContents').xpath('.//article[contains(@class, "article-wide")]').each do |node|
+          href = node.css("h2").at_xpath('.//a').attribute('href').value
+          m = href.match(/\/#{@company_id}\/(recruit_[a-z]+\?j=[A-Za-z0-9]+)/)
+          recruit_detail_url_suffix_list << m[1]
+        end
+        recruit_detail_url_suffix_list
+      end
+
+      def pattern2_detail_url_suffix_info(doc)
+        recruit_detail_url_suffix_list = []
+        doc.css('#mainColumn').xpath('.//article[contains(@class, "break-word")]').each do |node|
+          href = node.at_xpath('.//a[contains(@class, "button-usuallyBlue")]').attribute('href').value
+          m = href.match(/\/#{@company_id}\/(recruit_[a-z]+\?j=[A-Za-z0-9]+)/)
+          recruit_detail_url_suffix_list << m[1]
+        end
+        recruit_detail_url_suffix_list
+      end
+
+      def pattern1_detail_info(doc)
+        data = []
+        top_node = doc.css('#mainContents')
+        data << ["タイトル", top_node.at_xpath('.//div[contains(@class, "article_head-jobDetail")]')&.at_xpath('.//h2')&.text]
+
+        dt_texts = []
+        dd_texts = []
+        dl_node = top_node.at_xpath('.//div[@class="article_job"]')&.at_xpath('.//dl')
+        dl_node.xpath('.//dt').each do |node|
+          dt_texts << node.text
+        end
+        dl_node.xpath('.//dd').each do |node|
+          dd_texts << node.text
+        end
+        dt_texts.each_with_index do |dt_text, i|
+          data << [dt_text, dd_texts[i]]
+        end
+
+        updated_at_text = top_node.at_xpath('.//div[@class="article_job"]').at_xpath('.//p[@class="t-r mt-30 gray"]').at_xpath('.//span[@class="colonListTerm"]')&.text
+        m_updated_at = updated_at_text&.match(/\d{4}年\d{2}月\d{2}日/)
+        updated_at = m_updated_at ? m_updated_at[0] : nil
+        data << ["最終更新日", updated_at]
+        data
+      end
+
+      def pattern2_detail_info(doc)
         data = []
         top_node = doc.css('#mainColumn')
         data << ["タイトル", top_node.at_xpath('.//h3[contains(@class, "testPreviewJobOfferTitle")]')&.text]
