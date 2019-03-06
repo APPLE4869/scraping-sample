@@ -17,6 +17,10 @@ get '/company/:company_name' do
   company_id_list_client = Vorkers::CompanyIdList.new(params[:company_name])
   company_ids = company_id_list_client.fetch
 
+  # 住所と企業ホームページでIDを絞り込む
+  company_id_filter = Vorkers::CompanyIdFilger.new(address: params[:address], webpage_url: params[:webpage_url])
+  company_ids = company_id_filter.perform(company_ids)
+
   # 収集した会社IDごとに会社情報を収集
   @company_info_list = {}
   company_ids.each do |company_id|

@@ -24,14 +24,14 @@ class Scraping
 
     if html == nil
       # スクレイピングによる連続アクセスでのサーバー負荷を懸念して、通信ごとにSleepTimeを設けている。
-      sleep_time = rand(2..4)
-      p "sleep time : #{sleep_time} s"
+      sleep_time = rand(20..40)
+      #p "sleep time : #{sleep_time} s"
       sleep(sleep_time)
       response = get_request(path)
       html = response.body
 
-      # TODO (Shokei Takanashi)
-      # この場合だと403ページなどでもキャッシュされてしまうので、期待通りのHTMLを取得したケースでのみキャッシュするよう改修する。
+      raise "画像認証が必要です。" if is_verify_page?(html)
+
       redis_client.set(cache_key, html)
       redis_client.expire(cache_key, CACHE_TTL)
     end
@@ -40,6 +40,11 @@ class Scraping
   end
 
   private
+
+  def is_verify_page?(html)
+    doc = nokogiri_doc_by_html(html)
+    doc.title == "画像認証　Vorkers"
+  end
 
   def get_request(path)
     connection = Faraday.new(@base_url)
