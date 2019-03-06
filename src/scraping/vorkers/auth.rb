@@ -16,9 +16,6 @@ module Vorkers
       initial_cookie = Cookie.new("")
       ua = Ua.gen # 認証でのみUAを固定する
       login_page_response = request_login_page(ua)
-      p login_page_response.status
-      p login_page_response.headers.to_s
-      p "----------------------------"
       csrf = fetch_csrf_from_login_page_html(login_page_response.body)
       cookie_for_login = initial_cookie.create_new_cookie_by_response(login_page_response)
 

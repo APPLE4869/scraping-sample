@@ -83,6 +83,7 @@ module Vorkers
         dt_texts = []
         dd_texts = []
         dl_node = top_node.at_xpath('.//div[@class="article_job"]')&.at_xpath('.//dl')
+        return [] if dl_node == nil
         dl_node.xpath('.//dt').each do |node|
           dt_texts << node.text
         end
