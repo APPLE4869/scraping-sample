@@ -2,8 +2,8 @@
 # 別サイトでも認証用のクラスはAuthと命名し、publicメソッドのInterfaceは揃えること。
 module Vorkers
   class Auth
-    AUTHED_COOKIE_TTL = 60 * 60 # 1時間
-    AUTHED_COOKIE_CACHE_KEY = "AUTHED_COOKIE_CACHE_KEY"
+    AUTHED_COOKIE_TTL = 3600 # 1時間
+    AUTHED_COOKIE_CACHE_KEY = "VORKERS_AUTHED_COOKIE_CACHE_KEY"
 
     def initialize
       @authed_cookie = authed_cookie ? Cookie.new(authed_cookie) : nil
@@ -46,7 +46,16 @@ module Vorkers
     end
 
     def logged_in?
-      authed_cookie != nil
+      return false if authed_cookie == nil
+
+      # 認証必須ページを正常に表示できるか確認
+      response = connection.get do |req|
+        req.url "/mypage"
+        req.headers['User-Agent'] = Ua.gen
+        req.headers['Cookie'] = authed_cookie
+      end
+
+      response.status == 200
     end
 
     def logout
@@ -82,7 +91,8 @@ module Vorkers
     end
 
     def redis_client
-      @redis_client ||= Redis.new(host: "127.0.0.1", port: 6379)
+      redis_url = ENV["REDIS_URL"] || "redis://localhost:6379"
+      @redis_client ||= Redis.new(url: redis_url)
     end
   end
 end

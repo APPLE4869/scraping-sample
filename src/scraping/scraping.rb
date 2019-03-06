@@ -55,7 +55,8 @@ class Scraping
   end
 
   def redis_client
-    @redis_client ||= Redis.new(host: "127.0.0.1", port: 6379)
+    redis_url = ENV["REDIS_URL"] || "redis://localhost:6379"
+    @redis_client ||= Redis.new(url: redis_url)
   end
 
   def nokogiri_doc_by_html(html)
